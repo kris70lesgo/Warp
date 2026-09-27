@@ -103,7 +103,7 @@ export type SignatureRecord = z.infer<typeof SignatureRecordSchema>;
 
 export const ApiCallSchema = z.object({
   id: z.string(),
-  sponsor: z.enum(["SerpApi", "Nutrient", "Doctavian", "Foxit", "Xano", "name.com", "Gemini", "Sanity"]),
+  sponsor: z.enum(["SerpApi", "Nutrient", "Doctavian", "Foxit", "Xano", "name.com", "Gemini", "Sanity", "GLEIF"]),
   operation: z.string(),
   method: z.string(),
   endpoint: z.string(),
@@ -141,6 +141,24 @@ export const DomainFootprintSchema = z.object({
 });
 export type DomainFootprint = z.infer<typeof DomainFootprintSchema>;
 
+export const LegalEntityCheckSchema = z.object({
+  supplierId: z.string(),
+  queryName: z.string(),
+  country: z.string().optional(),
+  status: z.enum(["MATCH", "NO_MATCH", "UNAVAILABLE"]),
+  observedAt: z.string(),
+  lei: z.string().optional(),
+  legalName: z.string().optional(),
+  legalAddress: z.string().optional(),
+  jurisdiction: z.string().optional(),
+  entityStatus: z.string().optional(),
+  registrationStatus: z.string().optional(),
+  nextRenewalDate: z.string().optional(),
+  sourceUrl: z.string().url().optional(),
+  note: z.string(),
+});
+export type LegalEntityCheck = z.infer<typeof LegalEntityCheckSchema>;
+
 export const IncidentSchema = z.object({
   id: z.string(),
   supplier: z.string(),
@@ -160,6 +178,7 @@ export const IncidentSchema = z.object({
   }).optional(),
   externalSources: z.array(ExternalSourceSchema).optional(),
   domainFootprints: z.array(DomainFootprintSchema).optional(),
+  legalEntityChecks: z.array(LegalEntityCheckSchema).optional(),
   apiActivity: z.array(ApiCallSchema).optional(),
   auditLog: z.array(z.object({
     timestamp: z.string(),

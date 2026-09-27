@@ -131,6 +131,12 @@ export const SPONSOR_META: SponsorMeta[] = [
     docsUrl: "https://www.sanity.io/docs",
   },
   {
+    name: "GLEIF",
+    challenge: "Public legal-entity verification",
+    role: "No-key lookup against the Global Legal Entity Identifier registry. An exact legal-name record contributes positive identity evidence; no record is neutral because an LEI is not required for every legitimate supplier.",
+    docsUrl: "https://www.gleif.org/en/lei-data/gleif-api",
+  },
+  {
     name: "SerpApi",
     challenge: "Best AI Use Case",
     role: "Live web intelligence. AegisFlow runs one query per supplier plus market and disruption-news queries. Low or zero corroboration is treated as a negative signal, not ignored.",

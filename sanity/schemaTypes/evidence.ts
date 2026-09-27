@@ -83,6 +83,28 @@ const evidenceSource = defineType({
   preview: { select: { title: "title", subtitle: "query" } },
 });
 
+const evidenceLegalEntityCheck = defineType({
+  name: "evidenceLegalEntityCheck", title: "Legal-entity check", type: "document",
+  fields: [incidentRef, supplierRef,
+    defineField({ name: "incidentId", type: "string", validation: (rule) => rule.required() }),
+    defineField({ name: "supplierId", type: "string", validation: (rule) => rule.required() }),
+    defineField({ name: "queryName", type: "string" }),
+    defineField({ name: "country", type: "string" }),
+    defineField({ name: "status", type: "string", options: { list: ["MATCH", "NO_MATCH", "UNAVAILABLE"] } }),
+    defineField({ name: "observedAt", type: "datetime" }),
+    defineField({ name: "lei", type: "string" }),
+    defineField({ name: "legalName", type: "string" }),
+    defineField({ name: "legalAddress", type: "text" }),
+    defineField({ name: "jurisdiction", type: "string" }),
+    defineField({ name: "entityStatus", type: "string" }),
+    defineField({ name: "registrationStatus", type: "string" }),
+    defineField({ name: "nextRenewalDate", type: "datetime" }),
+    defineField({ name: "sourceUrl", type: "url" }),
+    defineField({ name: "note", type: "text" }),
+  ],
+  preview: { select: { title: "queryName", subtitle: "status" } },
+});
+
 const evidenceDecision = defineType({
   name: "evidenceDecision", title: "Evidence decision", type: "document",
   fields: [incidentRef,
@@ -97,4 +119,4 @@ const evidenceDecision = defineType({
   preview: { select: { title: "recommendedSupplierId", subtitle: "confidence" } },
 });
 
-export const evidenceTypes = [evidenceIncident, evidenceSupplier, evidenceClaim, evidenceDocument, evidenceSource, evidenceDecision];
+export const evidenceTypes = [evidenceIncident, evidenceSupplier, evidenceClaim, evidenceDocument, evidenceSource, evidenceLegalEntityCheck, evidenceDecision];

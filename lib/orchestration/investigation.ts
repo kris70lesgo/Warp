@@ -9,6 +9,7 @@ import { isXanoConfigured } from "@/integrations/xano/client";
 import { analyzeIncident } from "@/lib/agents/incident-analyst";
 import { runWebIntelligence, buildQueries } from "@/lib/agents/web-intelligence";
 import { runDomainIntelligence } from "@/lib/agents/domain-intelligence";
+import { runLegalEntityIntelligence } from "@/lib/agents/legal-entity-intelligence";
 import { runDocumentIntelligence, mergeDocClaims } from "@/lib/agents/document-intelligence";
 import { verifyClaims, corroborationBySupplier } from "@/lib/agents/verification";
 import { explainDecision } from "@/lib/agents/decision";
@@ -92,6 +93,20 @@ export async function* runInvestigation(id: string): AsyncGenerator<Investigatio
         : `all ${domains.footprints.length} registered`),
     actor: "AI",
     tag: domains.liveCount > 0 ? "LIVE" : "DEMO SEEDED",
+  });
+  await pace(350);
+
+  const legalEntities = await runLegalEntityIntelligence(incident, ledger);
+  incident.legalEntityChecks = legalEntities.checks;
+  const gleifAvailable = legalEntities.checks.some(
+    (check) => check.status !== "UNAVAILABLE",
+  );
+  yield await push({
+    message: gleifAvailable
+      ? `GLEIF legal-entity registry checked (${legalEntities.matchCount} verified record${legalEntities.matchCount === 1 ? "" : "s"} · ${legalEntities.checks.length - legalEntities.matchCount} no-match, neutral)`
+      : "GLEIF legal-entity registry unavailable — no legal-entity conclusion was made.",
+    actor: "AI",
+    tag: gleifAvailable ? "LIVE" : "LOCAL",
   });
   await pace(350);
 

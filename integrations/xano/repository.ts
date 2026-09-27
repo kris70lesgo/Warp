@@ -25,6 +25,7 @@ type EvidenceJson =
         Incident,
         | "externalSources"
         | "domainFootprints"
+        | "legalEntityChecks"
         | "documentsProcessed"
         | "apiActivity"
         | "decision"

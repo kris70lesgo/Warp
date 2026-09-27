@@ -44,7 +44,7 @@ describe("integration activity ledger", () => {
     }
   });
 
-  it("with no keys set, no entry is falsely marked LIVE", async () => {
+  it("with no configured credentials, no entry is falsely marked LIVE", async () => {
     await drain("INC-1042");
     const activity = (await getIncident("INC-1042"))?.apiActivity ?? [];
     expect(activity.every((c) => c.mode !== "LIVE")).toBe(true);

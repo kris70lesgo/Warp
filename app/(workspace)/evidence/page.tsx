@@ -4,6 +4,7 @@ import { ExternalSources } from "@/components/evidence/external-sources";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EvidenceGraphPanel } from "@/components/evidence/evidence-graph";
+import { LegalEntityChecks } from "@/components/evidence/legal-entity-checks";
 import { buildEvidenceGraph, readEvidenceGraph } from "@/lib/sanity/evidence-graph";
 
 export default async function EvidencePage() {
@@ -20,6 +21,7 @@ export default async function EvidencePage() {
       </div>
       <EvidenceSummary incident={incident} />
       <EvidenceGraphPanel graph={graph} source={sanityGraph ? "SANITY" : "LOCAL MIRROR"} />
+      <LegalEntityChecks incident={incident} />
       <ExternalSources incident={incident} />
       <Card>
         <CardHeader><CardTitle className="text-base">Claim provenance</CardTitle></CardHeader>

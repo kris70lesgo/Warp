@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 const isSet = (v?: string) => Boolean(v && v.trim());
 
 const CONFIG: { name: string; env: string; configured: boolean }[] = [
+  { name: "GLEIF", env: "None — public API", configured: true },
   { name: "SerpApi", env: "SERPAPI_API_KEY", configured: isSet(process.env.SERPAPI_API_KEY) },
   { name: "Nutrient", env: "NUTRIENT_API_KEY", configured: isSet(process.env.NUTRIENT_API_KEY) },
   {
@@ -76,8 +77,8 @@ export default async function IntegrationsPage() {
             </tbody>
           </table>
           <p className="mt-3 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">CONFIGURED means a key is present, not that the call
-            succeeded.</span>{" "}
+            <span className="font-medium text-foreground">CONFIGURED means the integration is ready to call
+            (a key is present where one is required), not that the call succeeded.</span>{" "}
             Whether an API actually answered is decided by the run, and the ledger below is the record — each entry is
             tagged LIVE, LOCAL or DEMO SEEDED by what really happened. With no keys at all the full workflow still runs
             end to end on honest fallbacks and every screen stays usable.

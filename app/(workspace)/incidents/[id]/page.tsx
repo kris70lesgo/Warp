@@ -14,6 +14,7 @@ import { ApiActivitySummary } from "@/components/integrations/api-activity";
 import { ExternalSources } from "@/components/evidence/external-sources";
 import { ProcessedDocuments } from "@/components/documents/processed-documents";
 import { StateStepper } from "@/components/incidents/state-stepper";
+import { LegalEntityChecks } from "@/components/evidence/legal-entity-checks";
 
 type Props = { params: Promise<{ id: string }> | { id: string } };
 
@@ -51,6 +52,7 @@ export default async function IncidentPage({ params }: Props) {
           {investigated && <EvidenceConflict incident={incident} />}
           <SupplierComparison ranked={ranked} showScores={investigated} externalCounts={externalCounts} />
           <EvidenceSummary incident={incident} />
+          <LegalEntityChecks incident={incident} />
           <ExternalSources incident={incident} />
           <ProcessedDocuments incident={incident} />
         </div>

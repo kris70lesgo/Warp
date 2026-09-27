@@ -1,5 +1,5 @@
 import { createClient } from "@sanity/client";
-import { Incident } from "@/schemas/core";
+import { Incident, LegalEntityCheck } from "@/schemas/core";
 import { ActivityLedger } from "@/lib/integrations/ledger";
 
 type EvidenceMode = "LIVE" | "LOCAL" | "DEMO SEEDED";
@@ -51,6 +51,8 @@ export interface EvidenceGraphSource {
   mode: EvidenceMode;
 }
 
+export type EvidenceGraphLegalEntityCheck = LegalEntityCheck;
+
 export interface EvidenceGraph {
   incidentId: string;
   supplier: string;
@@ -62,6 +64,7 @@ export interface EvidenceGraph {
   claims: EvidenceGraphClaim[];
   documents: EvidenceGraphDocument[];
   sources: EvidenceGraphSource[];
+  legalEntityChecks: EvidenceGraphLegalEntityCheck[];
   decision?: { recommendedSupplierId: string; confidence: number; reasoning: string; risks: string[]; unknowns: string[] };
 }
 
@@ -151,6 +154,7 @@ export function buildEvidenceGraph(incident: Incident): EvidenceGraph {
       observedAt: source.observedAt,
       mode: source.mode,
     })),
+    legalEntityChecks: incident.legalEntityChecks ?? [],
     decision: incident.decision && {
       recommendedSupplierId: incident.decision.recommendedSupplierId,
       confidence: incident.decision.confidence,
@@ -217,6 +221,16 @@ function toSanityDocuments(graph: EvidenceGraph): Array<Record<string, unknown>>
       ...source,
     });
   }
+  for (const check of graph.legalEntityChecks) {
+    documents.push({
+      _id: documentId("legal-entity", `${graph.incidentId}-${check.supplierId}`),
+      _type: "evidenceLegalEntityCheck",
+      incidentId: graph.incidentId,
+      incident: reference(incidentDocId),
+      supplier: reference(documentId("supplier", `${graph.incidentId}-${check.supplierId}`)),
+      ...check,
+    });
+  }
   if (graph.decision) {
     documents.push({
       _id: documentId("decision", graph.incidentId),
@@ -261,11 +275,12 @@ export async function readEvidenceGraph(incidentId: string): Promise<EvidenceGra
   type SanityDocument = Omit<EvidenceGraphDocument, "id"> & { documentId: string };
   type SanitySource = Omit<EvidenceGraphSource, "id"> & { sourceId: string };
   const data = await client().fetch<{
-    incident: Omit<EvidenceGraph, "suppliers" | "claims" | "documents" | "sources" | "decision"> | null;
+    incident: Omit<EvidenceGraph, "suppliers" | "claims" | "documents" | "sources" | "legalEntityChecks" | "decision"> | null;
     suppliers: SanitySupplier[];
     claims: SanityClaim[];
     documents: SanityDocument[];
     sources: SanitySource[];
+    legalEntityChecks: EvidenceGraphLegalEntityCheck[];
     decision: EvidenceGraph["decision"] | null;
   }>(`{
     "incident": *[_type == "evidenceIncident" && incidentId == $incidentId][0]{incidentId, supplier, affectedProduct, status, workflowState, generatedAt},
@@ -273,6 +288,7 @@ export async function readEvidenceGraph(incidentId: string): Promise<EvidenceGra
     "claims": *[_type == "evidenceClaim" && incidentId == $incidentId]{claimId, supplierId, text, source, observedAt, confidence, status, conflictReason, documentId, field, mode, rule},
     "documents": *[_type == "evidenceDocument" && incidentId == $incidentId]{documentId, supplierId, name, "documentType": documentType, fieldCount, mode, url},
     "sources": *[_type == "evidenceSource" && incidentId == $incidentId]{sourceId, supplierId, title, url, snippet, query, relevance, observedAt, mode},
+    "legalEntityChecks": *[_type == "evidenceLegalEntityCheck" && incidentId == $incidentId]{supplierId, queryName, country, status, observedAt, lei, legalName, legalAddress, jurisdiction, entityStatus, registrationStatus, nextRenewalDate, sourceUrl, note},
     "decision": *[_type == "evidenceDecision" && incidentId == $incidentId][0]{recommendedSupplierId, confidence, reasoning, risks, unknowns}
   }`, { incidentId });
   if (!data.incident) return null;
@@ -282,6 +298,7 @@ export async function readEvidenceGraph(incidentId: string): Promise<EvidenceGra
     claims: data.claims.map(({ claimId, ...claim }) => ({ id: claimId, ...claim })),
     documents: data.documents.map(({ documentId, ...doc }) => ({ id: documentId, ...doc })),
     sources: data.sources.map(({ sourceId, ...source }) => ({ id: sourceId, ...source })),
+    legalEntityChecks: data.legalEntityChecks,
     decision: data.decision ?? undefined,
   };
 }
